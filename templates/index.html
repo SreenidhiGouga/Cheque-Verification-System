@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cheque Verification System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Background image from the static/uploads directory */
+        body {
+            background-image: url('static/uploads/image.jpg'); /* Path to your image */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            margin: 0;
+        }
+
+        .overlay {
+            background: rgba(0, 0, 0, 0.6); /* Dark overlay for text visibility */
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+        }
+
+        .content {
+            z-index: 2;
+            position: relative;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center">
+    <!-- Overlay -->
+    <div class="overlay"></div>
+
+    <!-- Content -->
+    <div class="content bg-white bg-opacity-90 shadow-2xl rounded-2xl p-8 w-full max-w-md">
+        <h1 class="text-2xl font-bold text-center text-blue-600 mb-6">
+            Cheque Verification System
+        </h1>
+
+        <div id="dropzone" class="border-2 border-dashed border-blue-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 mb-4">
+            <input type="file" id="fileUpload" accept="image/*" class="hidden" />
+            <label for="fileUpload" class="cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-blue-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p id="dropText" class="text-gray-600">Drag and drop or click to upload cheque image</p>
+            </label>
+        </div>
+
+        <div id="filePreview" class="hidden mb-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span id="fileName"></span>
+            </div>
+            <button id="clearFile" class="text-red-500 hover:text-red-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <button id="verifyButton" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-all">
+            Verify Cheque
+        </button>
+
+        <div id="resultContainer" class="hidden mt-4 p-4 rounded-lg text-center"></div>
+    </div>
+
+    <script>
+        const fileUpload = document.getElementById('fileUpload');
+        const dropzone = document.getElementById('dropzone');
+        const filePreview = document.getElementById('filePreview');
+        const fileName = document.getElementById('fileName');
+        const clearFileBtn = document.getElementById('clearFile');
+        const verifyButton = document.getElementById('verifyButton');
+        const resultContainer = document.getElementById('resultContainer');
+        const dropText = document.getElementById('dropText');
+
+        let selectedFile = null;
+
+        // File selection
+        fileUpload.addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
+
+        // Drag and drop
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.add('border-blue-500');
+        });
+
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('border-blue-500');
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.remove('border-blue-500');
+            handleFileSelect(e.dataTransfer.files[0]);
+        });
+
+        function handleFileSelect(file) {
+            if (file && file.type.startsWith('image/')) {
+                selectedFile = file;
+                fileName.textContent = file.name;
+                dropzone.classList.add('hidden');
+                filePreview.classList.remove('hidden');
+                verifyButton.disabled = false;
+                verifyButton.classList.remove('bg-gray-300');
+                verifyButton.classList.add('bg-blue-600');
+            }
+        }
+
+        // Clear file selection
+        clearFileBtn.addEventListener('click', () => {
+            selectedFile = null;
+            fileUpload.value = '';
+            dropzone.classList.remove('hidden');
+            filePreview.classList.add('hidden');
+            verifyButton.disabled = true;
+            verifyButton.classList.add('bg-gray-300');
+            verifyButton.classList.remove('bg-blue-600');
+            resultContainer.classList.add('hidden');
+        });
+
+        // Verify button
+        verifyButton.addEventListener('click', () => {
+            if (!selectedFile) return;
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(result => {
+                resultContainer.innerHTML = result === 'Genuine' 
+                    ? `<div class="text-green-800 bg-green-100 p-3 rounded-lg">
+                        ✅ Cheque Appears Genuine
+                       </div>`
+                    : `<div class="text-red-800 bg-red-100 p-3 rounded-lg">
+                        ❌ Potential Forgery Detected
+                       </div>`;
+                resultContainer.classList.remove('hidden');
+            })
+            .catch(error => {
+                resultContainer.innerHTML = `<div class="text-red-800 bg-red-100 p-3 rounded-lg">
+                    Error Verifying Cheque
+                </div>`;
+                resultContainer.classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
