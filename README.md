@@ -29,20 +29,26 @@ This system automates the cheque verification process using computer vision and 
 ### 📁 Project Structure
 
 ```
-
-cheque-verification/
-├── app/                   # Flask application code
-│   ├── static/            # Frontend assets (CSS, JS, images)
-│   ├── templates/         # HTML templates
-│   ├── model/             # CNN model logic
-│   └── routes.py          # Flask routes and logic
-├── database/              # PostgreSQL setup and schema
-├── ocr/                   # OCR modules and helpers
-├── utils/                 # Utility functions
-├── requirements.txt       # Python dependencies
-└── run.py                 # Main application entry point
-
+cheque_verification/
+├── app/                        # Main Flask application logic
+├── data/                       # Dataset or sample cheque images
+├── env/                        # Python virtual environment (optional to track)
+├── static/                     # CSS, JS, and other static assets
+├── templates/                  # HTML frontend templates
+├── cheque_verification_model.h5  # Trained CNN model file
+├── preprocess.py               # Script for image preprocessing
+├── train_model.py              # Model training script
+├── requirements.txt            # Python dependencies
+└── app.py                      # Entry point for running the app
 ````
+---
+
+### 📦 Model File
+
+Download the pretrained CNN model used for signature verification:  
+🔗 [cheque_verification_model.h5 (Google Drive)](https://drive.google.com/file/d/1yP6ypb8tbEVWI2tfQ14X2tw8PT-9-cW_/view?usp=sharing)
+
+Place the downloaded file in the `app/model/` directory before running the application.
 
 ---
 
