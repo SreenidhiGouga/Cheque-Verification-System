@@ -52,6 +52,15 @@ Place the downloaded file in the `app/model/` directory before running the appli
 
 ---
 
+### 📂 Data Files
+
+Download the sample cheque image dataset used for training and testing:  
+🔗 [data/ folder (Google Drive)](https://drive.google.com/drive/folders/19OTerwqbhTtSCjUZNm3gU106m3oqZ5vx?usp=sharing)
+
+After downloading, place the folder in the project root directory as shown in the structure above.
+
+---
+
 ### 💻 Installation
 
 1. **Clone the repository**
